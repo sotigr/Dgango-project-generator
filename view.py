@@ -7,9 +7,17 @@ def add_line(file, search, newline):
 
 	with open(file, "w") as out_file:
 		for line in buf:
-			if line == search+"\n":
+			if search in line:
 				line = line + newline +	"\n"
-			out_file.write(line)	
+			out_file.write(line)
+
+def line_exists(file, line):
+	with open(file, "r") as in_file:
+		buf = in_file.readlines()
+	for tline in buf:
+		if line in tline:
+			return True
+	return False
 
 def add(file, search, newline):
 	with open(file, "r") as in_file:
@@ -17,7 +25,7 @@ def add(file, search, newline):
 
 	with open(file, "w") as out_file:
 		for line in buf: 
-			if line == search + "\n":
+			if search in line:
 				line = line[:-1] + newline + "\n"
 			out_file.write(line)	
 
@@ -57,8 +65,10 @@ else:
 	pass
 
 print("Creating view html file")
-os.makedirs(app_name + "/templates/partial/" + target_controller)
-view_path = app_name + "/templates/partial/" + target_controller + "/" + view_name + ".html"
+if not os.path.isdir(app_name + "/templates/partial/" + target_controller):
+	os.makedirs(app_name + "/templates/partial/" + target_controller)
+if not os.path.isfile(app_name + "/templates/partial/" + target_controller + "/" + view_name + ".html"):
+	view_path = app_name + "/templates/partial/" + target_controller + "/" + view_name + ".html"
 create_file(view_path, """
 {% extends 'shared/layout.html' %}
 
@@ -70,15 +80,17 @@ create_file(view_path, """
 """)
 
 print("Creating controller action")
-append_file(controller_path, """
+if not line_exists(controller_path, "def "+view_name+"(request):"):
+	append_file(controller_path, """
 def """+view_name+"""(request):
 	return render(request, 'partial/"""+target_controller+"""/"""+view_name+""".html')
-""")
+	""")
 
 print("Registering action in router")
 urls_file_path = app_name + "/urls.py"
 action_url = target_controller + "/" + view_name
 add(urls_file_path, "urlpatterns = [", "\n	path('"+action_url+"', "+target_controller+"."+view_name+", name='"+ target_controller + "_" + view_name+"'),")
-preppend_file(urls_file_path, "from .controllers import " + target_controller)
+if not line_exists(urls_file_path, "from .controllers import " + target_controller):
+	preppend_file(urls_file_path, "from .controllers import " + target_controller)
 
 print("Done.")
