@@ -45,7 +45,7 @@ if [ $crenv == "y" ]; then
 	pip install --upgrade pip
 	pip install Django
 	pip install faker
-	pip install django-seo2
+	pip install django-meta
 	
 	read -p "Run migrations? (y/n)" migrate
 	if [ $migrate == "y" ]; then
