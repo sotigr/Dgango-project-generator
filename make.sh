@@ -46,7 +46,7 @@ if [ $crenv == "y" ]; then
 	pip install Django
 	pip install faker
 	pip install django-meta
-	
+	pip install pythonql3
 	read -p "Run migrations? (y/n)" migrate
 	if [ $migrate == "y" ]; then
 		python3 manage.py makemigrations
